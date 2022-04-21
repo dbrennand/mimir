@@ -96,6 +96,12 @@ SED ?= $(shell which gsed 2>/dev/null || which sed)
 	@echo
 	@touch $@
 
+# This target compiles mimir for linux/arm
+build-arm-mimir:
+	@echo
+	$(MAKE) GOOS=linux GOARCH=arm BINARY_SUFFIX=_linux_arm cmd/mimir/mimir
+	$(SUDO) docker buildx build --platform linux/arm/v7 --build-arg=revision=$(GIT_REVISION) --build-arg=goproxyValue=$(GOPROXY_VALUE) --build-arg=USE_BINARY_SUFFIX=true -t $(IMAGE_PREFIX)mimir:$(IMAGE_TAG) cmd/mimir
+
 # This target compiles mimir for linux/amd64, linux/arm64 and linux/arm and then builds and pushes a multiarch image to the target repository.
 # We don't separate building of single-platform and multiplatform images here (as we do for push-multiarch-build-image), as
 # Mimir's Dockerfile is not doing much, and is unlikely to fail.
